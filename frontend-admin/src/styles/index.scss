@@ -1,0 +1,171 @@
+// 主题色变量
+$primary-color: #1890ff;
+$primary-light: #e6f7ff;
+$primary-dark: #096dd9;
+$success-color: #52c41a;
+$warning-color: #faad14;
+$error-color: #ff4d4f;
+$text-color: #333333;
+$text-secondary: #666666;
+$text-light: #999999;
+$border-color: #e8e8e8;
+$bg-color: #f5f7fa;
+$bg-card: #ffffff;
+
+// 全局样式
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: $text-color;
+  background-color: $bg-color;
+  -webkit-font-smoothing: antialiased;
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 3px;
+  
+  &:hover {
+    background-color: #a8a8a8;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+// 卡片样式
+.card {
+  background: $bg-card;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid $border-color;
+}
+
+// 页面容器
+.page-container {
+  padding: 20px;
+  min-height: calc(100vh - 60px);
+}
+
+// 统计卡片
+.stat-card {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  color: #fff;
+  padding: 16px 20px;
+  border-radius: 8px;
+  
+  .stat-label {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+  }
+}
+
+// 房屋卡片状态
+.room-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  padding: 12px;
+  background: $bg-card;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.rented {
+    border-left: 3px solid $success-color;
+    background: linear-gradient(to right, rgba($success-color, 0.05), transparent);
+  }
+  
+  &.vacant {
+    border-left: 3px solid $warning-color;
+    background: linear-gradient(to right, rgba($warning-color, 0.05), transparent);
+  }
+}
+
+// 表单区域
+.form-section {
+  background: $bg-card;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid $border-color;
+  
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-color;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $border-color;
+    
+    .el-icon {
+      margin-right: 8px;
+      color: $primary-color;
+    }
+  }
+}
+
+// 按钮样式增强
+.el-button {
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+// Element Plus 覆盖
+.el-tree {
+  background: transparent;
+  
+  .el-tree-node__content {
+    height: 36px;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: $primary-light;
+    }
+  }
+  
+  .el-tree-node.is-current > .el-tree-node__content {
+    background-color: $primary-light;
+    color: $primary-color;
+  }
+}
+
+.el-dialog {
+  border-radius: 8px;
+  
+  .el-dialog__header {
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 16px;
+  }
+}
+
+.el-message {
+  border-radius: 6px;
+}

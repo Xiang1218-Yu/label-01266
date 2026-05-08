@@ -1,0 +1,76 @@
+# ============ Java / Maven ============
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.tmp
+
+# ============ IDE ============
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+
+# VS Code
+.vscode/
+
+# ============ Node.js / Frontend ============
+node_modules/
+dist/
+.npm
+.eslintcache
+*.local
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ============ Docker ============
+.docker/
+
+# ============ OS ============
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ============ Environment ============
+.env
+.env.local
+.env.*.local
+*.env
+
+# ============ Misc ============
+*.bak
+*.backup
+*.orig

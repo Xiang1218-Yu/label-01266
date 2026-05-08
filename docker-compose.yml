@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # 达梦数据库
+  dm8:
+    image: if010/dameng
+    container_name: rental-dm8
+    restart: unless-stopped
+    ports:
+      - "5236:5236"
+    environment:
+      - CASE_SENSITIVE=0
+    volumes:
+      - dm_data:/opt/dmdbms/data
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/5236' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
+    networks:
+      - rental-network
+
+  # Redis 缓存服务
+  redis:
+    image: redis:7-alpine
+    container_name: rental-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rental-network
+
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    container_name: rental-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:dm://dm8:5236/DAMENG
+      - SPRING_DATASOURCE_USERNAME=SYSDBA
+      - SPRING_DATASOURCE_PASSWORD=SYSDBA001
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+      dm8:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - rental-network
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend-admin
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    container_name: rental-frontend
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rental-network
+
+networks:
+  rental-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  dm_data:
