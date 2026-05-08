@@ -94,4 +94,96 @@ class RoomStatsDTOTest {
         assertEquals(150, stats.getRentedCount());
         assertEquals(50, stats.getVacantCount());
     }
+
+    @Test
+    @DisplayName("测试入住率计算 - 极大数值")
+    void testGetOccupancyRateLargeNumbers() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(1000000);
+        stats.setRentedCount(999999);
+
+        BigDecimal result = stats.getOccupancyRate();
+
+        assertEquals(new BigDecimal("100.00"), result);
+    }
+
+    @Test
+    @DisplayName("测试入住率计算 - 极小比率精确计算")
+    void testGetOccupancyRateMinimalRate() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(10000);
+        stats.setRentedCount(1);
+
+        BigDecimal result = stats.getOccupancyRate();
+
+        assertEquals(new BigDecimal("0.01"), result);
+    }
+
+    @Test
+    @DisplayName("测试入住率计算 - 出租数大于总数（边界异常）")
+    void testGetOccupancyRateRentedGreaterThanTotal() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(10);
+        stats.setRentedCount(15);
+
+        BigDecimal result = stats.getOccupancyRate();
+
+        assertEquals(new BigDecimal("150.00"), result);
+    }
+
+    @Test
+    @DisplayName("测试入住率计算 - 出租数为null时的异常行为")
+    void testGetOccupancyRateRentedNullThrowsNPE() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(10);
+        stats.setRentedCount(null);
+
+        assertThrows(NullPointerException.class, stats::getOccupancyRate);
+    }
+
+    @Test
+    @DisplayName("测试可序列化")
+    void testSerializable() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(100);
+        stats.setRentedCount(70);
+        stats.setVacantCount(30);
+
+        assertTrue(java.io.Serializable.class.isInstance(stats));
+    }
+
+    @Test
+    @DisplayName("测试全部字段为null")
+    void testAllFieldsNull() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+
+        assertNull(stats.getTotalCount());
+        assertNull(stats.getRentedCount());
+        assertNull(stats.getVacantCount());
+        assertEquals(BigDecimal.ZERO, stats.getOccupancyRate());
+    }
+
+    @Test
+    @DisplayName("测试大数四舍五入进位")
+    void testGetOccupancyRateRoundingUp() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(20000);
+        stats.setRentedCount(13333);
+
+        BigDecimal result = stats.getOccupancyRate();
+
+        assertEquals(new BigDecimal("66.67"), result);
+    }
+
+    @Test
+    @DisplayName("测试大数四舍五入舍去")
+    void testGetOccupancyRateRoundingDown() {
+        RoomStatsDTO stats = new RoomStatsDTO();
+        stats.setTotalCount(1000);
+        stats.setRentedCount(123);
+
+        BigDecimal result = stats.getOccupancyRate();
+
+        assertEquals(new BigDecimal("12.30"), result);
+    }
 }

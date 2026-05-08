@@ -154,4 +154,131 @@ class SecurityUtilsTest {
         assertEquals(2L, user.getUserId());
         assertEquals("testuser", user.getUsername());
     }
+
+    @Test
+    @DisplayName("测试无安全上下文")
+    void testNoSecurityContext() {
+        SecurityContextHolder.clearContext();
+
+        LoginUser user = SecurityUtils.getCurrentUser();
+        Long userId = SecurityUtils.getCurrentUserId();
+        String username = SecurityUtils.getCurrentUsername();
+
+        assertNull(user);
+        assertNull(userId);
+        assertNull(username);
+    }
+
+    @Test
+    @DisplayName("测试principal为null")
+    void testPrincipalNull() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(null);
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        LoginUser user = SecurityUtils.getCurrentUser();
+        Long userId = SecurityUtils.getCurrentUserId();
+        String username = SecurityUtils.getCurrentUsername();
+
+        assertNull(user);
+        assertNull(userId);
+        assertNull(username);
+    }
+
+    @Test
+    @DisplayName("测试principal为其他对象类型")
+    void testPrincipalOtherObjectType() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(Integer.valueOf(123));
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        LoginUser user = SecurityUtils.getCurrentUser();
+        Long userId = SecurityUtils.getCurrentUserId();
+        String username = SecurityUtils.getCurrentUsername();
+
+        assertNull(user);
+        assertNull(userId);
+        assertNull(username);
+    }
+
+    @Test
+    @DisplayName("测试获取用户ID - 用户ID为null")
+    void testGetCurrentUserIdWithNullUserId() {
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUserId(null);
+        loginUser.setUsername("test");
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(loginUser);
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        assertNull(userId);
+    }
+
+    @Test
+    @DisplayName("测试获取用户名 - 用户名为null")
+    void testGetCurrentUsernameWithNullUsername() {
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUserId(1L);
+        loginUser.setUsername(null);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(loginUser);
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        String username = SecurityUtils.getCurrentUsername();
+
+        assertNull(username);
+    }
+
+    @Test
+    @DisplayName("测试LoginUser空构造器")
+    void testLoginUserNoArgsConstructor() {
+        LoginUser user = new LoginUser();
+
+        assertNull(user.getUserId());
+        assertNull(user.getUsername());
+    }
+
+    @Test
+    @DisplayName("测试LoginUser用户名包含特殊字符")
+    void testLoginUserWithSpecialUsername() {
+        LoginUser user = new LoginUser(999L, "admin@test!#$%^&*");
+
+        assertEquals(999L, user.getUserId());
+        assertEquals("admin@test!#$%^&*", user.getUsername());
+    }
+
+    @Test
+    @DisplayName("测试LoginUser超长用户名")
+    void testLoginUserWithLongUsername() {
+        String longUsername = "a".repeat(200);
+        LoginUser user = new LoginUser(1L, longUsername);
+
+        assertEquals(1L, user.getUserId());
+        assertEquals(longUsername, user.getUsername());
+    }
+
+    @Test
+    @DisplayName("测试LoginUser空用户名")
+    void testLoginUserWithEmptyUsername() {
+        LoginUser user = new LoginUser(1L, "");
+
+        assertEquals(1L, user.getUserId());
+        assertEquals("", user.getUsername());
+    }
 }

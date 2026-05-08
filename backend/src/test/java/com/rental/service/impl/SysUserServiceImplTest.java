@@ -18,8 +18,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -151,5 +149,118 @@ class SysUserServiceImplTest {
         assertEquals("pass", user.getPassword());
         assertEquals("测试用户", user.getRealName());
         assertEquals(1, user.getStatus());
+    }
+
+    @Test
+    @DisplayName("测试SysUser状态边界值")
+    void testSysUserStatusBoundaryValues() {
+        SysUser userEnabled = new SysUser();
+        userEnabled.setStatus(1);
+        assertEquals(1, userEnabled.getStatus());
+
+        SysUser userDisabled = new SysUser();
+        userDisabled.setStatus(0);
+        assertEquals(0, userDisabled.getStatus());
+
+        SysUser userNegativeStatus = new SysUser();
+        userNegativeStatus.setStatus(-1);
+        assertEquals(-1, userNegativeStatus.getStatus());
+    }
+
+    @Test
+    @DisplayName("测试SysUser超长用户名")
+    void testSysUserLongUsername() {
+        SysUser user = new SysUser();
+        String longUsername = "a".repeat(200);
+        user.setUsername(longUsername);
+        user.setPassword("password");
+        user.setRealName("测试用户");
+        user.setStatus(1);
+
+        assertEquals(longUsername, user.getUsername());
+        assertEquals("password", user.getPassword());
+        assertEquals("测试用户", user.getRealName());
+        assertEquals(1, user.getStatus());
+    }
+
+    @Test
+    @DisplayName("测试SysUser空字符串")
+    void testSysUserEmptyStrings() {
+        SysUser user = new SysUser();
+        user.setUsername("");
+        user.setPassword("");
+        user.setRealName("");
+
+        assertEquals("", user.getUsername());
+        assertEquals("", user.getPassword());
+        assertEquals("", user.getRealName());
+    }
+
+    @Test
+    @DisplayName("测试SysUser null值")
+    void testSysUserNullValues() {
+        SysUser user = new SysUser();
+
+        assertNull(user.getId());
+        assertNull(user.getUsername());
+        assertNull(user.getPassword());
+        assertNull(user.getRealName());
+        assertNull(user.getStatus());
+    }
+
+    @Test
+    @DisplayName("测试SysUser包含特殊字符的用户名")
+    void testSysUserSpecialCharacters() {
+        SysUser user = new SysUser();
+        user.setUsername("admin@test!#$%^&*()");
+        user.setRealName("测试用户-管理员");
+
+        assertEquals("admin@test!#$%^&*()", user.getUsername());
+        assertEquals("测试用户-管理员", user.getRealName());
+    }
+
+    @Test
+    @DisplayName("测试LoginDTO空字符串")
+    void testLoginDTOEmptyStrings() {
+        LoginDTO dto = new LoginDTO();
+        dto.setUsername("");
+        dto.setPassword("");
+
+        assertEquals("", dto.getUsername());
+        assertEquals("", dto.getPassword());
+    }
+
+    @Test
+    @DisplayName("测试LoginDTOnull值")
+    void testLoginDTONullValues() {
+        LoginDTO dto = new LoginDTO();
+
+        assertNull(dto.getUsername());
+        assertNull(dto.getPassword());
+    }
+
+    @Test
+    @DisplayName("测试LoginResultDTO空字符串")
+    void testLoginResultDTOEmptyStrings() {
+        LoginResultDTO dto = new LoginResultDTO();
+        dto.setToken("");
+        dto.setUsername("");
+        dto.setRealName("");
+
+        assertEquals("", dto.getToken());
+        assertEquals("", dto.getUsername());
+        assertEquals("", dto.getRealName());
+    }
+
+    @Test
+    @DisplayName("测试LoginResultDTOnull值")
+    void testLoginResultDTONullValues() {
+        LoginResultDTO dto = new LoginResultDTO();
+
+        assertNull(dto.getToken());
+        assertNull(dto.getUserId());
+        assertNull(dto.getUsername());
+        assertNull(dto.getRealName());
+        assertNull(dto.getExpireTime());
     }
 }

@@ -135,4 +135,109 @@ class JwtTokenProviderTest {
 
         assertNotEquals(token1, token2);
     }
+
+    @Test
+    @DisplayName("测试null参数 - getUserIdFromToken(null)")
+    void testGetUserIdFromTokenNull() {
+        Long userId = jwtTokenProvider.getUserIdFromToken(null);
+        assertNull(userId);
+    }
+
+    @Test
+    @DisplayName("测试空字符串参数 - getUserIdFromToken(\"\")")
+    void testGetUserIdFromTokenEmptyString() {
+        Long userId = jwtTokenProvider.getUserIdFromToken("");
+        assertNull(userId);
+    }
+
+    @Test
+    @DisplayName("测试null参数 - getUsernameFromToken(null)")
+    void testGetUsernameFromTokenNull() {
+        String username = jwtTokenProvider.getUsernameFromToken(null);
+        assertNull(username);
+    }
+
+    @Test
+    @DisplayName("测试空字符串参数 - getUsernameFromToken(\"\")")
+    void testGetUsernameFromTokenEmptyString() {
+        String username = jwtTokenProvider.getUsernameFromToken("");
+        assertNull(username);
+    }
+
+    @Test
+    @DisplayName("测试null参数 - validateToken(null)")
+    void testValidateTokenNull() {
+        boolean valid = jwtTokenProvider.validateToken(null);
+        assertFalse(valid);
+    }
+
+    @Test
+    @DisplayName("测试空字符串参数 - validateToken(\"\")")
+    void testValidateTokenEmptyString() {
+        boolean valid = jwtTokenProvider.validateToken("");
+        assertFalse(valid);
+    }
+
+    @Test
+    @DisplayName("测试超长用户名生成Token")
+    void testGenerateTokenWithLongUsername() {
+        String longUsername = "a".repeat(1000);
+        String token = jwtTokenProvider.generateToken(1L, longUsername);
+
+        assertNotNull(token);
+        assertEquals(1L, jwtTokenProvider.getUserIdFromToken(token));
+        assertEquals(longUsername, jwtTokenProvider.getUsernameFromToken(token));
+    }
+
+    @Test
+    @DisplayName("测试空用户名生成Token")
+    void testGenerateTokenWithEmptyUsername() {
+        String token = jwtTokenProvider.generateToken(1L, "");
+
+        assertNotNull(token);
+        assertEquals(1L, jwtTokenProvider.getUserIdFromToken(token));
+        assertEquals("", jwtTokenProvider.getUsernameFromToken(token));
+    }
+
+    @Test
+    @DisplayName("测试包含特殊字符的用户名")
+    void testGenerateTokenWithSpecialCharsUsername() {
+        String specialUsername = "admin@test!#$%^&*()_+-=[]{}|;':\",./<>?中文测试";
+        String token = jwtTokenProvider.generateToken(999L, specialUsername);
+
+        assertNotNull(token);
+        assertEquals(999L, jwtTokenProvider.getUserIdFromToken(token));
+        assertEquals(specialUsername, jwtTokenProvider.getUsernameFromToken(token));
+    }
+
+    @Test
+    @DisplayName("测试超大用户ID")
+    void testGenerateTokenWithLargeUserId() {
+        Long largeId = 999999999999999L;
+        String token = jwtTokenProvider.generateToken(largeId, "largeuser");
+
+        assertNotNull(token);
+        assertEquals(largeId, jwtTokenProvider.getUserIdFromToken(token));
+    }
+
+    @Test
+    @DisplayName("测试Token格式错误 - 只有一个点")
+    void testValidateMalformedTokenOneDot() {
+        String malformedToken = "header.payload";
+        assertFalse(jwtTokenProvider.validateToken(malformedToken));
+    }
+
+    @Test
+    @DisplayName("测试Token格式错误 - 没有点")
+    void testValidateMalformedTokenNoDot() {
+        String malformedToken = "justrandomstring";
+        assertFalse(jwtTokenProvider.validateToken(malformedToken));
+    }
+
+    @Test
+    @DisplayName("测试Token格式错误 - 大量空白字符")
+    void testValidateTokenWithWhitespace() {
+        assertFalse(jwtTokenProvider.validateToken("   "));
+        assertFalse(jwtTokenProvider.validateToken("\n\t\r"));
+    }
 }
